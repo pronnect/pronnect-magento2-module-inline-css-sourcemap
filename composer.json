@@ -1,12 +1,10 @@
 {
     "name": "pronnect/module-css-inline-sourcemap",
-    "description": "N/A",
+    "description": "Enable generating css inline source map",
     "type": "magento2-module",
     "license": "OSL-3.0",
     "require": {
-        "php": ">=7.3.0",
-        "magento/framework": "*",
-        "magento/module-theme": "*"
+        "php": ">=7.3"
     },
     "autoload": {
         "files": [
