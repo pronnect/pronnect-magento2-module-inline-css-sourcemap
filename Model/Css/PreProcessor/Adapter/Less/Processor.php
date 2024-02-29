@@ -65,7 +65,7 @@ class Processor implements ContentProcessorInterface
             ];
 
             if ($this->canUseCssInlineSourceMap()) {
-                $parserOptions['sourceMap'] = $this->appState->getMode() === State::MODE_DEVELOPER;
+                $parserOptions['sourceMap'] = true;
                 $parserOptions['outputSourceFiles'] = true;
                 $parserOptions['sourceMapBasepath'] = $this->temporaryFile->getMaterializationAbsolutePath();
             }
@@ -104,6 +104,10 @@ class Processor implements ContentProcessorInterface
      */
     private function canUseCssInlineSourceMap (): bool
     {
-        return (bool)$this->scopeConfig->isSetFlag(self::XML_PATH_USE_CSS_INLINE_SOURCEMAP, ScopeInterface::SCOPE_STORE);
+        return $this->appState->getMode() === State::MODE_DEVELOPER
+            && $this->scopeConfig->isSetFlag(
+                self::XML_PATH_USE_CSS_INLINE_SOURCEMAP,
+                ScopeInterface::SCOPE_STORE
+            );
     }
 }
