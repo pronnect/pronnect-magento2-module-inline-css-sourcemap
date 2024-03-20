@@ -2,9 +2,18 @@
     "name": "pronnect/module-css-inline-sourcemap",
     "description": "Enable generating css inline source map",
     "type": "magento2-module",
+    "keywords": ["Adobe Commerce", "Magento 2", "less", "source map", "css"],
+    "authors": [
+        {
+            "name": "Tomas Curilla",
+            "email": "tomas@curilla.sk"
+        }
+    ],
     "license": "OSL-3.0",
     "require": {
-        "php": ">=7.3"
+        "php": ">=7.3",
+        "magento/framework": "*",
+        "wikimedia/less.php": "*"
     },
     "autoload": {
         "files": [
