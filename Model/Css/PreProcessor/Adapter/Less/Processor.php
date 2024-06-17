@@ -72,7 +72,7 @@ class Processor implements ContentProcessorInterface
 
             $parser = new Less_Parser($parserOptions);
             $path = $asset->getPath();
-            $content = $this->assetSource->getContent($asset);
+            $content = (string)$this->assetSource->getContent($asset);
 
             if (trim($content) === '') {
                 throw new ContentProcessorException(
@@ -84,7 +84,7 @@ class Processor implements ContentProcessorInterface
 
             gc_disable();
             $parser->parseFile($tmpFilePath, '');
-            $content = $parser->getCss();
+            $content = (string)$parser->getCss();
             gc_enable();
 
             if (trim($content) === '') {
