@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Pronnect\CssInlineSourceMap\Model\Css\PreProcessor\Adapter\Less;
@@ -7,6 +8,7 @@ use Exception;
 use Less_Parser;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\State;
+use Magento\Framework\App\View\Deployment\Version\StorageInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\View\Asset\ContentProcessorException;
 use Magento\Framework\View\Asset\ContentProcessorInterface;
@@ -14,59 +16,60 @@ use Magento\Framework\View\Asset\File;
 use Magento\Framework\View\Asset\Source;
 use Magento\Store\Model\ScopeInterface;
 use Pronnect\CssInlineSourceMap\Model\Css\PreProcessor\File\Temporary;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class Processor
  */
 class Processor implements ContentProcessorInterface
 {
-    private const XML_PATH_USE_CSS_INLINE_SOURCEMAP = 'dev/css/use_css_inline_sourcemap';
+    private const string XML_PATH_USE_CSS_INLINE_SOURCEMAP = 'dev/css/use_css_inline_sourcemap';
 
-    private LoggerInterface $logger;
     private State $appState;
     private Source $assetSource;
     private Temporary $temporaryFile;
     private ScopeConfigInterface $scopeConfig;
+    private StorageInterface $storage;
 
     /**
      * Constructor
      *
-     * @param LoggerInterface      $logger
      * @param State                $appState
      * @param Source               $assetSource
      * @param Temporary            $temporaryFile
      * @param ScopeConfigInterface $scopeConfig
+     * @param StorageInterface     $storage
      */
     public function __construct (
-        LoggerInterface      $logger,
         State                $appState,
         Source               $assetSource,
         Temporary            $temporaryFile,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        StorageInterface     $storage
     )
     {
-        $this->logger = $logger;
         $this->appState = $appState;
         $this->assetSource = $assetSource;
         $this->temporaryFile = $temporaryFile;
         $this->scopeConfig = $scopeConfig;
+        $this->storage = $storage;
     }
 
     /**
      * @inheritdoc
+     * @throws ContentProcessorException
      */
-    public function processContent (File $asset)
+    public function processContent (File $asset): string
     {
         try {
             $parserOptions = [
-                'relativeUrls' => false,
+                'relativeUrls' => true,
                 'compress' => $this->appState->getMode() !== State::MODE_DEVELOPER,
             ];
 
             if ($this->canUseCssInlineSourceMap()) {
                 $parserOptions['sourceMap'] = true;
-                $parserOptions['outputSourceFiles'] = true;
+                $parserOptions['outputSourceFiles'] = false;
+                $parserOptions['sourceMapRootpath'] = "/static/version" . $this->storage->load() . "/";
                 $parserOptions['sourceMapBasepath'] = $this->temporaryFile->getMaterializationAbsolutePath();
             }
 
@@ -91,9 +94,9 @@ class Processor implements ContentProcessorInterface
                 throw new ContentProcessorException(
                     new Phrase('Compilation from source: LESS file is empty: ' . $path)
                 );
-            } else {
-                return $content;
             }
+
+            return $content;
         } catch (Exception $e) {
             throw new ContentProcessorException(new Phrase($e->getMessage()));
         }
